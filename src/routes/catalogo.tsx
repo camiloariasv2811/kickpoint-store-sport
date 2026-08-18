@@ -12,22 +12,22 @@ import { listBrands, listCategories, listProducts } from "@/lib/catalog.function
 import { totalStock } from "@/lib/types";
 
 type Search = {
-  q?: string;
-  categoria?: string;
-  marca?: string;
-  talla?: string;
-  max?: number;
-  orden?: string;
+  q?: string | undefined;
+  categoria?: string | undefined;
+  marca?: string | undefined;
+  talla?: string | undefined;
+  max?: number | undefined;
+  orden?: string | undefined;
 };
 
 export const Route = createFileRoute("/catalogo")({
   validateSearch: (search: Record<string, unknown>): Search => ({
-    q: typeof search.q === "string" ? search.q : undefined,
-    categoria: typeof search.categoria === "string" ? search.categoria : undefined,
-    marca: typeof search.marca === "string" ? search.marca : undefined,
-    talla: typeof search.talla === "string" ? search.talla : undefined,
-    max: search.max ? Number(search.max) : undefined,
-    orden: typeof search.orden === "string" ? search.orden : undefined,
+    q: typeof search["q"] === "string" ? (search["q"] as string) : undefined,
+    categoria: typeof search["categoria"] === "string" ? (search["categoria"] as string) : undefined,
+    marca: typeof search["marca"] === "string" ? (search["marca"] as string) : undefined,
+    talla: typeof search["talla"] === "string" ? (search["talla"] as string) : undefined,
+    max: search["max"] ? Number(search["max"]) : undefined,
+    orden: typeof search["orden"] === "string" ? (search["orden"] as string) : undefined,
   }),
   head: () => ({
     meta: [

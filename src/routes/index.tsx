@@ -30,22 +30,21 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-const CATEGORY_TILES = [
+type Tile = {
+  slug: string;
+  label: string;
+  icon: typeof Medal;
+  brand?: boolean;
+};
+
+const CATEGORY_TILES: Tile[] = [
   { slug: "futbol", label: "Fútbol", icon: Medal },
   { slug: "gym", label: "GYM", icon: Flame },
   { slug: "alo", label: "Alo", icon: Sparkles, brand: true },
   { slug: "on", label: "On", icon: Sparkles, brand: true },
-] as const;
+];
 
-function SectionHeader({
-  title,
-  eyebrow,
-  to,
-}: {
-  title: string;
-  eyebrow?: string;
-  to?: { search?: Record<string, string> };
-}) {
+function SectionHeader({ title, eyebrow }: { title: string; eyebrow?: string }) {
   return (
     <div className="mb-5 flex items-end justify-between gap-4">
       <div>
@@ -54,7 +53,6 @@ function SectionHeader({
       </div>
       <Link
         to="/catalogo"
-        search={to?.search}
         className="flex shrink-0 items-center gap-1 text-xs font-bold uppercase tracking-wider text-primary hover:underline"
       >
         Ver todos <ArrowRight className="size-3.5" />
