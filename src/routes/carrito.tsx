@@ -4,7 +4,7 @@ import { ArrowRight, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { unitPrice, useCart } from "@/lib/cart";
-import { money, moneyExact } from "@/lib/format";
+import { money, moneyExact, whatsappLink } from "@/lib/format";
 
 export const Route = createFileRoute("/carrito")({
   head: () => ({
@@ -144,10 +144,24 @@ function CartPage() {
                 </p>
               </div>
               <Button asChild variant="hero" size="xl" className="mt-5 w-full">
-                <Link to="/checkout">
+                <a
+                  href={whatsappLink(
+                    `Hola KICKPOINT, quiero este pedido:\n${lines
+                      .map(
+                        (l) =>
+                          `• ${l.name} · Talla ${l.size}${l.color ? ` · ${l.color}` : ""} × ${l.quantity} = ${moneyExact(unitPrice(l) * l.quantity)}`,
+                      )
+                      .join("\n")}\nTotal: ${moneyExact(subtotal)}`,
+                  )}
+                  target="_blank"
+                  rel="noreferrer"
+                >
                   Continuar compra <ArrowRight className="size-5" />
-                </Link>
+                </a>
               </Button>
+              <p className="mt-2 text-center text-[0.7rem] text-muted-foreground">
+                El checkout con pago y comprobante se habilita en la Fase 2.
+              </p>
               <Button asChild variant="ghost" size="sm" className="mt-2 w-full">
                 <Link to="/catalogo">Seguir comprando</Link>
               </Button>
