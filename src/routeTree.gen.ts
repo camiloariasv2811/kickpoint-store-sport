@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CarritoRouteImport } from './routes/carrito'
 import { Route as CatalogoRouteImport } from './routes/catalogo'
 import { Route as CategoriasRouteImport } from './routes/categorias'
+import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as MayorRouteImport } from './routes/mayor'
 import { Route as PedidoRouteImport } from './routes/pedido'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -57,6 +58,11 @@ const CatalogoRoute = CatalogoRouteImport.update({
 const CategoriasRoute = CategoriasRouteImport.update({
   id: '/categorias',
   path: '/categorias',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MayorRoute = MayorRouteImport.update({
@@ -144,6 +150,7 @@ export interface FileRoutesByFullPath {
   '/carrito': typeof CarritoRoute
   '/catalogo': typeof CatalogoRoute
   '/categorias': typeof CategoriasRoute
+  '/checkout': typeof CheckoutRoute
   '/mayor': typeof MayorRoute
   '/pedido': typeof PedidoRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -165,6 +172,7 @@ export interface FileRoutesByTo {
   '/carrito': typeof CarritoRoute
   '/catalogo': typeof CatalogoRoute
   '/categorias': typeof CategoriasRoute
+  '/checkout': typeof CheckoutRoute
   '/mayor': typeof MayorRoute
   '/pedido': typeof PedidoRoute
   '/producto/$slug': typeof ProductoSlugRoute
@@ -187,6 +195,7 @@ export interface FileRoutesById {
   '/carrito': typeof CarritoRoute
   '/catalogo': typeof CatalogoRoute
   '/categorias': typeof CategoriasRoute
+  '/checkout': typeof CheckoutRoute
   '/mayor': typeof MayorRoute
   '/pedido': typeof PedidoRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -210,6 +219,7 @@ export interface FileRouteTypes {
     | '/carrito'
     | '/catalogo'
     | '/categorias'
+    | '/checkout'
     | '/mayor'
     | '/pedido'
     | '/admin'
@@ -231,6 +241,7 @@ export interface FileRouteTypes {
     | '/carrito'
     | '/catalogo'
     | '/categorias'
+    | '/checkout'
     | '/mayor'
     | '/pedido'
     | '/producto/$slug'
@@ -252,6 +263,7 @@ export interface FileRouteTypes {
     | '/carrito'
     | '/catalogo'
     | '/categorias'
+    | '/checkout'
     | '/mayor'
     | '/pedido'
     | '/_authenticated/admin'
@@ -275,6 +287,7 @@ export interface RootRouteChildren {
   CarritoRoute: typeof CarritoRoute
   CatalogoRoute: typeof CatalogoRoute
   CategoriasRoute: typeof CategoriasRoute
+  CheckoutRoute: typeof CheckoutRoute
   MayorRoute: typeof MayorRoute
   PedidoRoute: typeof PedidoRoute
   ProductoSlugRoute: typeof ProductoSlugRoute
@@ -322,6 +335,13 @@ declare module '@tanstack/react-router' {
       path: '/categorias'
       fullPath: '/categorias'
       preLoaderRoute: typeof CategoriasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mayor': {
@@ -472,6 +492,7 @@ const rootRouteChildren: RootRouteChildren = {
   CarritoRoute: CarritoRoute,
   CatalogoRoute: CatalogoRoute,
   CategoriasRoute: CategoriasRoute,
+  CheckoutRoute: CheckoutRoute,
   MayorRoute: MayorRoute,
   PedidoRoute: PedidoRoute,
   ProductoSlugRoute: ProductoSlugRoute,

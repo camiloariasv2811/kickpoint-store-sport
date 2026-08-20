@@ -33,14 +33,19 @@ export const Route = createFileRoute("/checkout")({
   component: CheckoutPage,
 });
 
-const FIELDS = [
+const FIELDS: {
+  key: "firstName" | "lastName" | "whatsapp" | "email" | "city" | "state";
+  label: string;
+  placeholder: string;
+  required?: boolean;
+}[] = [
   { key: "firstName", label: "Nombre", placeholder: "María", required: true },
   { key: "lastName", label: "Apellido", placeholder: "Pérez" },
   { key: "whatsapp", label: "WhatsApp", placeholder: "0412 123 4567", required: true },
   { key: "email", label: "Correo (opcional)", placeholder: "maria@correo.com" },
   { key: "city", label: "Ciudad", placeholder: "Caracas", required: true },
   { key: "state", label: "Estado", placeholder: "Distrito Capital" },
-] as const;
+];
 
 function CheckoutPage() {
   const navigate = useNavigate();
