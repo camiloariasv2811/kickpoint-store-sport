@@ -144,24 +144,14 @@ function CartPage() {
                 </p>
               </div>
               <Button asChild variant="hero" size="xl" className="mt-5 w-full">
-                <a
-                  href={whatsappLink(
-                    `Hola KICKPOINT, quiero este pedido:\n${lines
-                      .map(
-                        (l) =>
-                          `• ${l.name} · Talla ${l.size}${l.color ? ` · ${l.color}` : ""} × ${l.quantity} = ${moneyExact(unitPrice(l) * l.quantity)}`,
-                      )
-                      .join("\n")}\nTotal: ${moneyExact(subtotal)}`,
-                  )}
-                  target="_blank"
-                  rel="noreferrer"
-                >
+                <Link to="/checkout">
                   Continuar compra <ArrowRight className="size-5" />
-                </a>
+                </Link>
               </Button>
               <p className="mt-2 text-center text-[0.7rem] text-muted-foreground">
-                El checkout con pago y comprobante se habilita en la Fase 2.
+                Pago Móvil, USDT o CEL con verificación de comprobante.
               </p>
+
               <Button asChild variant="ghost" size="sm" className="mt-2 w-full">
                 <Link to="/catalogo">Seguir comprando</Link>
               </Button>
