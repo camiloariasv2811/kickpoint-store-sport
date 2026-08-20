@@ -19,6 +19,7 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as MayorRouteImport } from './routes/mayor'
 import { Route as PedidoRouteImport } from './routes/pedido'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ProductoSlugRouteImport } from './routes/producto.$slug'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminCategoriasRouteImport } from './routes/_authenticated/admin.categorias'
@@ -79,6 +80,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/callback',
+  path: '/callback',
+  getParentRoute: () => AuthRoute,
 } as any)
 const ProductoSlugRoute = ProductoSlugRouteImport.update({
   id: '/producto/$slug',
@@ -146,7 +152,7 @@ const AuthenticatedAdminVentasRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/carrito': typeof CarritoRoute
   '/catalogo': typeof CatalogoRoute
   '/categorias': typeof CategoriasRoute
@@ -154,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/mayor': typeof MayorRoute
   '/pedido': typeof PedidoRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/auth/callback': typeof AuthCallbackRoute
   '/producto/$slug': typeof ProductoSlugRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesRoute
@@ -168,13 +175,14 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/carrito': typeof CarritoRoute
   '/catalogo': typeof CatalogoRoute
   '/categorias': typeof CategoriasRoute
   '/checkout': typeof CheckoutRoute
   '/mayor': typeof MayorRoute
   '/pedido': typeof PedidoRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/producto/$slug': typeof ProductoSlugRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesRoute
@@ -191,7 +199,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/carrito': typeof CarritoRoute
   '/catalogo': typeof CatalogoRoute
   '/categorias': typeof CategoriasRoute
@@ -199,6 +207,7 @@ export interface FileRoutesById {
   '/mayor': typeof MayorRoute
   '/pedido': typeof PedidoRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/auth/callback': typeof AuthCallbackRoute
   '/producto/$slug': typeof ProductoSlugRoute
   '/_authenticated/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/_authenticated/admin/clientes': typeof AuthenticatedAdminClientesRoute
@@ -223,6 +232,7 @@ export interface FileRouteTypes {
     | '/mayor'
     | '/pedido'
     | '/admin'
+    | '/auth/callback'
     | '/producto/$slug'
     | '/admin/categorias'
     | '/admin/clientes'
@@ -244,6 +254,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/mayor'
     | '/pedido'
+    | '/auth/callback'
     | '/producto/$slug'
     | '/admin/categorias'
     | '/admin/clientes'
@@ -267,6 +278,7 @@ export interface FileRouteTypes {
     | '/mayor'
     | '/pedido'
     | '/_authenticated/admin'
+    | '/auth/callback'
     | '/producto/$slug'
     | '/_authenticated/admin/categorias'
     | '/_authenticated/admin/clientes'
@@ -283,7 +295,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  AuthRoute: typeof AuthRoute
+  AuthRoute: typeof AuthRouteWithChildren
   CarritoRoute: typeof CarritoRoute
   CatalogoRoute: typeof CatalogoRoute
   CategoriasRoute: typeof CategoriasRoute
@@ -364,6 +376,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/producto/$slug': {
       id: '/producto/$slug'
@@ -485,10 +504,20 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface AuthRouteChildren {
+  AuthCallbackRoute: typeof AuthCallbackRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthCallbackRoute: AuthCallbackRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  AuthRoute: AuthRoute,
+  AuthRoute: AuthRouteWithChildren,
   CarritoRoute: CarritoRoute,
   CatalogoRoute: CatalogoRoute,
   CategoriasRoute: CategoriasRoute,
