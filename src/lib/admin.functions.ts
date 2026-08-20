@@ -18,14 +18,23 @@ export const claimAdminIfFirst = createServerFn({ method: "POST" })
     const { error: insertError } = await supabaseAdmin
       .from("user_roles")
       .insert({ user_id: context.userId, role: "admin" });
-    if (insertError) throw new Error(insertError.message);
+    if (insertError) {
+      if (insertError.code === "42501") {
+        throw new Error("No se pudo asignar el rol de administrador por permisos RLS. Configura SUPABASE_SERVICE_ROLE_KEY en el servidor o asigna el rol en user_roles.");
+      }
+      throw new Error(insertError.message);
+    }
 
-    await supabaseAdmin.from("audit_log").insert({
-      user_id: context.userId,
-      action: "Se asignó el primer administrador",
-      entity: "user_roles",
-      entity_id: context.userId,
-    });
+    try {
+      await supabaseAdmin.from("audit_log").insert({
+        user_id: context.userId,
+        action: "Se asignó el primer administrador",
+        entity: "user_roles",
+        entity_id: context.userId,
+      });
+    } catch {
+      // Registro de auditoría opcional si falla RLS
+    }
 
     return { granted: true as const };
   });
