@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Loader2, Search } from "lucide-react";
 import { useState } from "react";
@@ -18,6 +18,7 @@ export const Route = createFileRoute("/_authenticated/admin/pedidos")({
 function Page() {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("");
+  const queryClient = useQueryClient();
   const orders = useQuery({ queryKey: ["admin-orders"], queryFn: () => listOrders() });
 
   const list = (orders.data ?? []).filter((o) => {
@@ -68,7 +69,14 @@ function Page() {
 
       <div className="mt-4 space-y-3">
         {list.map((order) => (
-          <OrderRow key={order.id} order={order} onChanged={() => void orders.refetch()} />
+          <OrderRow
+            key={order.id}
+            order={order}
+            onChanged={() => {
+              void orders.refetch();
+              void queryClient.invalidateQueries({ queryKey: ["admin", "pending-orders-count"] });
+            }}
+          />
         ))}
       </div>
     </AdminShell>

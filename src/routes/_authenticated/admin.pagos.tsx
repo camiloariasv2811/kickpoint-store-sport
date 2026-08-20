@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Check, ExternalLink, Loader2, X } from "lucide-react";
 import { useState } from "react";
@@ -18,6 +18,7 @@ type Row = { order: AdminOrder; payment: AdminOrder["payments"][number] };
 
 function Page() {
   const [showAll, setShowAll] = useState(false);
+  const queryClient = useQueryClient();
   const orders = useQuery({ queryKey: ["admin-orders"], queryFn: () => listOrders() });
 
   const rows: Row[] = (orders.data ?? []).flatMap((order) =>
@@ -52,7 +53,14 @@ function Page() {
 
       <div className="mt-4 space-y-3">
         {list.map((row) => (
-          <PaymentRow key={row.payment.id} row={row} onChanged={() => void orders.refetch()} />
+          <PaymentRow
+            key={row.payment.id}
+            row={row}
+            onChanged={() => {
+              void orders.refetch();
+              void queryClient.invalidateQueries({ queryKey: ["admin", "pending-orders-count"] });
+            }}
+          />
         ))}
       </div>
     </AdminShell>

@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BarChart3,
   Boxes,
@@ -21,6 +21,7 @@ import { Logo } from "@/components/site/Logo";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
+import { countPendingOrders } from "@/lib/admin.functions";
 
 const NAV = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
@@ -35,7 +36,13 @@ const NAV = [
   { to: "/admin/configuracion", label: "Configuración", icon: Settings },
 ] as const;
 
-function NavList({ onNavigate }: { onNavigate?: () => void }) {
+function NavList({
+  onNavigate,
+  pendingOrders,
+}: {
+  onNavigate?: () => void;
+  pendingOrders: number;
+}) {
   return (
     <nav className="flex flex-col gap-1 p-3">
       {NAV.map((item) => (
@@ -50,7 +57,12 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
           className="flex items-center gap-3 rounded-lg border border-transparent px-3 py-2.5 text-sm font-medium text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-primary"
         >
           <item.icon className="size-4.5 shrink-0" />
-          {item.label}
+          <span className="flex-1">{item.label}</span>
+          {item.to === "/admin/pedidos" && pendingOrders > 0 && (
+            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-500 px-1.5 text-[0.65rem] font-bold text-white">
+              {pendingOrders}
+            </span>
+          )}
         </Link>
       ))}
     </nav>
@@ -71,6 +83,11 @@ export function AdminShell({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
+  const pendingOrdersQuery = useQuery({
+    queryKey: ["admin", "pending-orders-count"],
+    queryFn: () => countPendingOrders(),
+  });
+  const pendingOrders = pendingOrdersQuery.data?.count ?? 0;
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -87,7 +104,7 @@ export function AdminShell({
           <p className="text-eyebrow mt-1 text-[0.6rem] text-primary">Portal del vendedor</p>
         </div>
         <div className="flex-1 overflow-y-auto">
-          <NavList />
+          <NavList pendingOrders={pendingOrders} />
         </div>
         <div className="border-t border-sidebar-border p-3">
           <Button variant="ghost" className="w-full justify-start" onClick={signOut}>
@@ -114,7 +131,7 @@ export function AdminShell({
               <div className="border-b border-sidebar-border px-5 py-5">
                 <Logo />
               </div>
-              <NavList onNavigate={() => setOpen(false)} />
+              <NavList onNavigate={() => setOpen(false)} pendingOrders={pendingOrders} />
               <div className="border-t border-sidebar-border p-3">
                 <Button variant="ghost" className="w-full justify-start" onClick={signOut}>
                   <LogOut className="size-4" /> Cerrar sesión
