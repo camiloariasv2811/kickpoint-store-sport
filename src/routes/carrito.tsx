@@ -4,7 +4,7 @@ import { ArrowRight, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { unitPrice, useCart } from "@/lib/cart";
-import { money, moneyExact, whatsappLink } from "@/lib/format";
+import { money, moneyExact } from "@/lib/format";
 
 export const Route = createFileRoute("/carrito")({
   head: () => ({
