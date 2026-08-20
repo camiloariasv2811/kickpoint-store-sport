@@ -1,12 +1,11 @@
-import React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Trash } from "lucide-react";
 
-type Variant = {
-  id?: string;
+export type Variant = {
+  id?: string | null;
   size: string;
   color?: string | null;
   sku?: string | null;
@@ -29,7 +28,7 @@ export default function VariantTable({
   }
 
   function add() {
-    onChange([...variants, { size: "", color: null, sku: undefined, stock: 0, active: true }]);
+    onChange([...variants, { size: "", color: null, sku: null, stock: 0, active: true }]);
   }
 
   function remove(idx: number) {
@@ -39,47 +38,93 @@ export default function VariantTable({
   return (
     <div>
       <div className="mb-2 flex items-center justify-between">
-        <Label>Variantes</Label>
-        <Button size="sm" variant="outline" onClick={add}>
+        <Label>Variantes (Talla × Color)</Label>
+        <Button size="sm" variant="outline" type="button" onClick={add}>
           <Plus className="size-4" /> Añadir variante
         </Button>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="max-h-72 overflow-y-auto overflow-x-auto rounded-lg border border-border">
         <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left text-xs text-muted-foreground">
-              <th className="px-2 py-2">Talla</th>
-              <th className="px-2 py-2">Color</th>
-              <th className="px-2 py-2">SKU</th>
-              <th className="px-2 py-2">Stock</th>
-              <th className="px-2 py-2">Activo</th>
-              <th className="px-2 py-2">Acciones</th>
+          <thead className="sticky top-0 bg-surface-2">
+            <tr className="border-b border-border text-left text-xs text-muted-foreground">
+              <th className="px-2.5 py-2">Talla</th>
+              <th className="px-2.5 py-2">Color</th>
+              <th className="px-2.5 py-2">SKU</th>
+              <th className="px-2.5 py-2">Stock</th>
+              <th className="px-2.5 py-2">Activo</th>
+              <th className="px-2.5 py-2 text-center">Acción</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
+            {variants.length === 0 && (
+              <tr>
+                <td colSpan={6} className="py-6 text-center text-xs text-muted-foreground">
+                  No hay variantes definidas. Agrega tallas arriba o usa "Añadir variante".
+                </td>
+              </tr>
+            )}
             {variants.map((v, i) => (
-              <tr key={v.id ?? `${v.size}-${v.color}-${i}`} className="align-middle">
-                <td className="px-2 py-2 w-40">
-                  <Input value={v.size} onChange={(e) => update(i, { size: e.target.value })} />
+              <tr
+                key={v.id ?? `v-${i}-${v.size}-${v.color}`}
+                className="align-middle transition-colors hover:bg-surface-2/40"
+              >
+                <td className="px-2.5 py-1.5 w-32">
+                  <Input
+                    className="h-8 text-xs font-semibold"
+                    placeholder="S, M, L, 40..."
+                    value={v.size}
+                    onChange={(e) => update(i, { size: e.target.value })}
+                  />
                 </td>
-                <td className="px-2 py-2 w-40">
-                  <Input value={v.color ?? ""} onChange={(e) => update(i, { color: e.target.value || null })} />
+                <td className="px-2.5 py-1.5 w-32">
+                  <Input
+                    className="h-8 text-xs"
+                    placeholder="Negro, Azul..."
+                    value={v.color ?? ""}
+                    onChange={(e) => update(i, { color: e.target.value ? e.target.value : null })}
+                  />
                 </td>
-                <td className="px-2 py-2 w-56">
-                  <Input value={v.sku ?? (baseSku ? `${baseSku}-${(v.size||"").toString().replace(/\s+/g,"")}${v.color?`-${v.color.slice(0,3).toUpperCase()}`:""}` : v.sku ?? "")}
-                    onChange={(e) => update(i, { sku: e.target.value })} />
+                <td className="px-2.5 py-1.5 w-48">
+                  <Input
+                    className="h-8 text-xs font-mono"
+                    placeholder={
+                      baseSku
+                        ? `${baseSku}-${(v.size || "").replace(/\s+/g, "").toUpperCase()}`
+                        : "SKU-VAR"
+                    }
+                    value={v.sku ?? ""}
+                    onChange={(e) => update(i, { sku: e.target.value ? e.target.value : null })}
+                  />
                 </td>
-                <td className="px-2 py-2 w-28">
-                  <Input type="number" value={String(v.stock ?? 0)} onChange={(e) => update(i, { stock: Number(e.target.value || 0) })} />
+                <td className="px-2.5 py-1.5 w-24">
+                  <Input
+                    className="h-8 text-xs text-right font-medium"
+                    type="number"
+                    min="0"
+                    value={String(v.stock ?? 0)}
+                    onChange={(e) =>
+                      update(i, { stock: Math.max(0, parseInt(e.target.value, 10) || 0) })
+                    }
+                  />
                 </td>
-                <td className="px-2 py-2 w-24">
-                  <div className="flex items-center">
-                    <Checkbox checked={v.active ?? true} onCheckedChange={(val) => update(i, { active: Boolean(val) })} />
+                <td className="px-2.5 py-1.5 w-16 text-center">
+                  <div className="flex items-center justify-center">
+                    <Checkbox
+                      checked={v.active ?? true}
+                      onCheckedChange={(val) => update(i, { active: Boolean(val) })}
+                    />
                   </div>
                 </td>
-                <td className="px-2 py-2 w-24">
-                  <Button size="sm" variant="ghost" onClick={() => remove(i)}>
+                <td className="px-2.5 py-1.5 w-16 text-center">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    type="button"
+                    className="size-8 p-0 text-muted-foreground hover:text-destructive"
+                    onClick={() => remove(i)}
+                    title="Quitar variante"
+                  >
                     <Trash className="size-4" />
                   </Button>
                 </td>
