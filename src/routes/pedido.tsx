@@ -12,7 +12,7 @@ import { moneyExact, whatsappLink } from "@/lib/format";
 import { ORDER_STATUS_LABELS, ORDER_STATUSES } from "@/lib/types";
 
 export const Route = createFileRoute("/pedido")({
-  validateSearch: (search: { code?: string }): { code?: string } => ({
+  validateSearch: (search: { code?: string | undefined }): { code?: string | undefined } => ({
     code: typeof search.code === "string" ? search.code.toUpperCase().slice(0, 24) : undefined,
   }),
   head: () => ({
