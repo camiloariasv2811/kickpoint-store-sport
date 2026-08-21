@@ -145,7 +145,9 @@ export const reviewPayment = createServerFn({ method: "POST" })
 
     const { data: order, error: orderError } = await supabase
       .from("orders")
-      .select("id, order_number, inventory_applied, items:order_items(variant_id, quantity)")
+      .select(
+        "id, order_number, inventory_applied, customer_id, payment_method_code, total, items:order_items(product_id, variant_id, product_name, size, color, quantity, unit_price, unit_cost, subtotal)",
+      )
       .eq("id", payment.order_id)
       .single();
     if (orderError) throw new Error(orderError.message);
@@ -171,6 +173,44 @@ export const reviewPayment = createServerFn({ method: "POST" })
           created_by: userId,
         });
       }
+
+      // Registra la venta online para que aparezca en Ventas y Reportes.
+      const costTotal = Number(
+        (order.items ?? [])
+          .reduce((sum, i) => sum + Number(i.unit_cost ?? 0) * Number(i.quantity ?? 0), 0)
+          .toFixed(2),
+      );
+      const { data: sale } = await supabase
+        .from("sales")
+        .insert({
+          channel: "online",
+          order_id: order.id,
+          customer_id: order.customer_id,
+          payment_method_code: order.payment_method_code,
+          total: Number(order.total ?? 0),
+          cost_total: costTotal,
+          created_by: userId,
+        })
+        .select("id")
+        .single();
+
+      if (sale) {
+        await supabase.from("sale_items").insert(
+          (order.items ?? []).map((i) => ({
+            sale_id: sale.id,
+            product_id: i.product_id,
+            variant_id: i.variant_id,
+            product_name: i.product_name,
+            size: i.size,
+            color: i.color,
+            quantity: i.quantity,
+            unit_price: i.unit_price,
+            unit_cost: i.unit_cost,
+            subtotal: i.subtotal,
+          })),
+        );
+      }
+
       await supabase
         .from("orders")
         .update({ inventory_applied: true, status: "pago_verificado" })
@@ -178,6 +218,7 @@ export const reviewPayment = createServerFn({ method: "POST" })
     } else {
       await supabase.from("orders").update({ status: "pago_verificado" }).eq("id", order.id);
     }
+
 
     await supabase.from("audit_log").insert({
       user_id: userId,
